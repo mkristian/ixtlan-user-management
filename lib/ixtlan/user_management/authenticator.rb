@@ -35,6 +35,7 @@ module Ixtlan
         user = nil
         @restserver.create( Authentication.new(:login => username_or_email, :password => password) ) do |json, req|
           user = user_new( JSON.load( json ) ) unless json.strip == ''
+          #tell restserver to ignore response
           nil
         end
         user

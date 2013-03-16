@@ -18,14 +18,34 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'ixtlan/user_management/session_plugin'
 
 module Ixtlan
   module UserManagement
   
     class SessionCuba < CubaAPI
 
-      plugin SessionPlugin
+      def self.authenticator
+        self[ :authenticator ] ||= Authenticator.new( self[ :rest ] )
+      end
+
+      def log( msg )
+        if self.respond_to? :audit
+          audit( msg, { :username => login } )
+        else
+          warn( "[#{login}] #{msg}" )
+        end
+      end
+  
+      def login_and_password
+        source = parse_request_body rescue nil
+        source = req if source.nil? || source.empty?
+        auth = source[ 'authentication' ] || source
+        [ auth[ 'login' ] || auth[ 'email' ], auth[ 'password' ] ]
+      end
+      
+      def login
+        login_and_password[ 0 ]
+      end
 
       define do
         on post, :reset_password do
@@ -57,8 +77,8 @@ module Ixtlan
           head 200
         end
         
-        on delete, current_user do
-          self.class.authenticator.logout( current_user )
+        on delete do
+          self.class.authenticator.logout( current_user ) if current_user
           log "logout"
           reset_current_user
           head 200
