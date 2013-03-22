@@ -24,7 +24,7 @@ module Ixtlan
     class Session
       include Virtus
 
-      attribute :idle_session_timeout, Integer
+      attribute :idle_session_timeout, Integer, :default => 30
       attribute :user, User
       attribute :permissions, Array[Object]
 
