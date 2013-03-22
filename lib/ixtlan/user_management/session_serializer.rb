@@ -25,16 +25,16 @@ module Ixtlan
 
       root 'session'
 
-      add_context(:single,
-                  :only => [:idle_session_timeout],
-                  :include => { 
-                    :user => {
-                    },
-                    :permissions => {
-                      :include => [:actions, :associations]
-                    }
-                  }
-                  )
+      add_context( :single,
+                   :only => [ :idle_session_timeout ],
+                   :include => { 
+                     :user => {
+                       :only => [ :id, :login, :name ]
+                     },
+                     :permissions => {
+                       :include => [ :actions, :associations ]
+                     }
+                   } )
       
     end
   end
