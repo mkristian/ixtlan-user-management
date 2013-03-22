@@ -19,6 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 require 'ixtlan/user_management/authentication_model'
+require 'multi_json'
 module Ixtlan
   module UserManagement
     class Authenticator
@@ -34,7 +35,7 @@ module Ixtlan
       def login( username_or_email, password )
         user = nil
         @restserver.create( Authentication.new(:login => username_or_email, :password => password) ) do |json, req|
-          user = user_new( JSON.load( json ) ) unless json.strip == ''
+          user = user_new( MultiJson.load( json ) ) unless json.strip == ''
           #tell restserver to ignore response
           nil
         end

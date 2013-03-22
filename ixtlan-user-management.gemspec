@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.files += Dir['Gemfile']
 
   s.test_files += Dir['spec/**/*_spec.rb']
+  s.add_runtime_dependency'multi_json', '~> 1.6'
   s.add_development_dependency 'rake', '~> 10.0.2'
   s.add_development_dependency 'minitest', '~> 4.3.0'
   s.add_development_dependency 'dm-sqlite-adapter', '1.2.0'
