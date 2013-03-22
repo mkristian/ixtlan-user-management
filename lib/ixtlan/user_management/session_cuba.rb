@@ -18,7 +18,6 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-
 module Ixtlan
   module UserManagement
   
@@ -72,17 +71,39 @@ module Ixtlan
           end
         end
         
-        on get, :ping do
-          self.class.authenticator.ping( current_user )
-          head 200
+        on authenticated? do
+          on get, 'me' do
+            if current_user.respond_to? :updated_at
+              if modified_since.nil? || current_user.updated_at > modified_since
+                last_modified( current_user.updated_at )
+                browser_only_cache_no_store
+                write current_user, :use => :me
+              else
+                last_modified( modified_since )          
+              end
+            else
+              browser_only_cache_no_store
+              write current_user, :use => :me
+            end
+          end
+
+          on get, 'ping' do
+            self.class.authenticator.ping( current_user )
+            head 200
+          end
         end
-        
+
+        on get, /(me|ping)/ do
+          head :unauthorized
+        end
+
         on delete do
           self.class.authenticator.logout( current_user ) if current_user
           log "logout"
           reset_current_user
           head 200
         end
+
       end
     end
   end
