@@ -48,7 +48,7 @@ module Ixtlan
               Group.new( g )
             end
             user = User.first( :login => data[ 'login' ] )
-            user.groups = groups
+            user.groups = groups if user
             user
           end
         end
