@@ -29,7 +29,7 @@ module Ixtlan
       attribute :permissions, Array[Object]
 
       def to_s
-        "Session( #{user.name}<#{user.login}> groups[ #{user.groups.collect { |g| g.name }.join ',' } ] #{idle_session_timeout} )"
+        "Session( #{user.name}<#{user.login}> groups:[ #{user.groups.collect { |g| g.name }.join ',' } ] idle_timeout:#{idle_session_timeout} )"
       end
     end
   end
