@@ -18,48 +18,35 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'ixtlan/user_management/authentication_model'
-require 'multi_json'
+require 'ixtlan/user_management/authenticator'
+
 module Ixtlan
   module UserManagement
-    class Authenticator
+    module SessionPlugin
 
-      def initialize( restserver )
-        @restserver = restserver
-      end
-
-      def user_new( params )
-        User.new( params )
-      end
-
-      def login( username_or_email, password )
-        user = nil
-        @restserver.create( Authentication.new( :login => username_or_email,
-                                                :password => password) ) do |json, req|
-          user = user_new( MultiJson.load( json ) ) unless json.strip == ''
-          #tell restserver to ignore response
-          nil
+      module ClassMethods
+        def authenticator
+          self[ :authenticator ] ||= Authenticator.new( self[ :rest ] )
         end
-        user
+      end
+
+      def log( msg )
+        if self.respond_to? :audit
+          audit( msg, { :username => login } )
+        else
+          warn( "[#{login}] #{msg}" )
+        end
+      end
+  
+      def login_and_password
+        source = parse_request_body
+        source = req if source && source.empty?
+        auth = source[ 'authentication' ] || source
+        [ auth[ 'login' ] || auth[ 'email' ], auth[ 'password' ] ]
       end
       
-      def reset_password( username_or_email )
-        result = nil
-        @restserver.create( Authentication.new( :login => username_or_email ), 
-                            :reset_password ) do |json, req|
-          result = json unless json.strip == ''
-          #tell restserver to ignore response
-          nil
-        end
-        result
-      end
-
-      def ping( user )
-        # do nothing
-      end
-
-      def logout( user )
-        # do nothing
+      def login
+        login_and_password[ 0 ]
       end
     end
   end

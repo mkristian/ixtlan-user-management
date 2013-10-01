@@ -50,10 +50,10 @@ module Ixtlan
         on post, :reset_password do
           if msg = self.class.authenticator.reset_password( login_and_password[ 0 ] )
             log msg
-            head 200
+            no_body :ok
           else
             log "user/email not found"
-            head 404
+            no_body :not_found
           end
         end
 
@@ -67,7 +67,7 @@ module Ixtlan
             write self.class.sessions.create( user )
           else
             log "access denied"
-            head 403
+            head :forbidden # 403
           end
         end
         
@@ -89,19 +89,19 @@ module Ixtlan
 
           on get, 'ping' do
             self.class.authenticator.ping( current_user )
-            head 200
+            no_body :ok
           end
         end
 
         on get, /(me|ping)/ do
-          head :unauthorized
+          no_body :unauthorized # 401
         end
 
         on delete do
           self.class.authenticator.logout( current_user ) if current_user
           log "logout"
           reset_current_user
-          head 200
+          no_body :ok
         end
 
       end
