@@ -4,7 +4,10 @@ task :default => [ :spec ]
 
 task :spec do
   require 'rubygems'
-  require 'bundler/setup'
+  begin
+    require 'minitest'
+  rescue LoadError
+  end
   require 'minitest/autorun'
 
   $LOAD_PATH << "spec"
