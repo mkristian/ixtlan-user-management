@@ -64,10 +64,11 @@ module Ixtlan
             # be compliant with rack-protection and rack-csrf
             csrf = session[ :csrf ] || session[ "csrf.token" ]
             res[ 'X-CSRF-TOKEN' ] = csrf if csrf
+            # self.class.sessions is from CubaApi::CurrentUser
             write self.class.sessions.create( user )
           else
             log "access denied"
-            head :forbidden # 403
+            no_body :forbidden # 403
           end
         end
         
