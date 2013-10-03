@@ -18,19 +18,46 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-require 'virtus'
 require 'ixtlan/user_management/permission_model'
 module Ixtlan
   module UserManagement
-    class Session
-      include Virtus
+    class Guard
+      METHODS = {
+        :post => 'create',
+        :get => 'retrieve',
+        :put => 'update',
+        :delete => 'delete'
+      }
 
-      attribute :idle_session_timeout, Integer, :default => 30
-      attribute :user, User
-      attribute :permissions, Array[Permission]
+      def allow?( resource ,method, association = nil )
+        perm = permissions( resource )
+        (perm.associations.empty? || 
+          perm.associations.include?( association.to_s ) ) && 
+          perm.allow?( METHODS[ method ] ) #TODO, associations )
+      end
 
-      def to_s
-        "Session( #{user.name}<#{user.login}> groups:[ #{user.groups.collect { |g| g.name }.join ',' } ] idle_timeout:#{idle_session_timeout} )"
+      def associations( resource, method )
+        perm = permissions( resource )
+        unless perm.associations.empty?
+          perm.associations
+        end
+        # TODO method 
+      end
+      
+      def all_permissions
+        @permissions.values
+      end
+
+      def permissions( resource )
+        @permissions ||= {}
+        @permissions[ resource ] ||= Permission.new( :resource => resource )
+      end
+      
+      def permission( resource, *associations, &block ) 
+        current = permissions( resource )
+        current.associations = associations unless associations.empty?
+        block.call current if block
+        current
       end
     end
   end

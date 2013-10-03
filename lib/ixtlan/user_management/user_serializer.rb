@@ -24,10 +24,12 @@ module Ixtlan
     class UserSerializer < Ixtlan::Babel::Serializer
 
       add_context(:session,
-                  :only => [:login, :name],
+                  :only => [],
+                  :methods => [:login, :name],
                   :include=> { 
                     :groups => {
-                      :only => [:name]
+                      :only => [],
+                      :methods => [:name]
                     }
                   })
     end
