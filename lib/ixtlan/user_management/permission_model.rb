@@ -36,6 +36,7 @@ module Ixtlan
                   :allow_update, 
                   :allow_delete ]
       
+      attribute :parent, Permission
       attribute :resource, String
       attribute :actions, Array[Action], :default => []
       attribute :allow, Boolean, :default => true
