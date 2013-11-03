@@ -22,7 +22,7 @@ describe Ixtlan::UserManagement::Guard do
 
   before do
     %w( audits errors configuration ).each do |resource|
-      subject.permission( resource ).deny_all
+      subject.permission_for( resource ).deny_all
     end
   end
 

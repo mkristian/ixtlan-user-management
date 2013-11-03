@@ -30,31 +30,52 @@ module Ixtlan
       }
 
       def allow?( resource ,method, association = nil )
-        perm = permissions( resource )
-        (perm.associations.empty? || 
-          perm.associations.include?( association.to_s ) ) && 
+        perms = permissions[ resource ] || []
+        perms.one? do |perm|
+          ( perm.associations.empty? || 
+            perm.associations.include?( association.to_s ) ) && 
           perm.allow?( METHODS[ method ] ) #TODO, associations )
+        end
       end
 
-      def associations( resource, method )
-        perm = permissions( resource )
-        unless perm.associations.empty?
-          perm.associations
-        end
+      def associations( resource, method = nil )
+        perms = permissions[ resource ] || []
+        perms.collect { |perm| perm.associations }.flatten
         # TODO method 
       end
       
-      def all_permissions
-        @permissions.values
+      def check_parent( resource, parent_resource )
+        perms = permissions[ resource ]
+        if perms
+          perms.each do |perm|
+            if perm.parent && perm.parent.resource != parent_resource
+              raise 'parent resource is not guarded'
+            end
+          end
+        end
       end
 
-      def permissions( resource )
+      def all_permissions
+        permissions.values.flatten.select { |pp| pp.parent.nil? }
+      end
+
+      def permissions
         @permissions ||= {}
-        @permissions[ resource ] ||= Permission.new( :resource => resource )
+      end
+
+      def permissions_new( resource )
+        pp = Permission.new( :resource => resource )
+        ( permissions[ resource ] ||= [] ) << pp
+        pp
       end
       
-      def permission( resource, *associations, &block ) 
-        current = permissions( resource )
+      def permission_for( resource, *associations, &block ) 
+        current = permissions_new( resource )
+	associations.flatten!
+        if associations.first.is_a? Permission
+          current.parent = associations.first
+          associations = associations[ 1..-1 ]
+        end
         current.associations = associations unless associations.empty?
         block.call current if block
         current
