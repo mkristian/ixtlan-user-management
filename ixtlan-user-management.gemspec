@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'ixtlan-remote'
   s.add_development_dependency 'ixtlan-gettext'
   s.add_development_dependency 'ixtlan-configuration'
+  s.add_development_dependency 'ixtlan-babel'
   s.add_development_dependency 'json', '~>1.7'
   s.add_development_dependency 'cuba-api', '>= 0.5.1', '< 0.6.0'
 end
