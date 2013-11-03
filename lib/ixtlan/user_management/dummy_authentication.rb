@@ -58,11 +58,11 @@ module Ixtlan
       end
 
       def group_for( model, login )
-        model.new('name' => login.sub( /\[.*/, '' ) )
+        model.new('name' => login.sub( /\[.*/, '' ), 'associations'=> split( login ) )
       end
 
       def split( login )
-        login.sub( /.*\[/ , '' ).sub( /\].*/, '' ).split( /,/ )
+        login.sub( /.*\[/ , '' ).sub( /\].*/, '' ).split( /,/ ) if login.match /.+\[/
       end
 
     end
