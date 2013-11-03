@@ -45,7 +45,7 @@ describe Ixtlan::UserManagement::Session do
 
   it 'serializes with root permissions' do
     %w( audits errors configuration ).each do |resource|
-      guard.permission( resource ).allow_all
+      guard.permission_for( resource ).allow_all
     end
 
     subject.permissions = guard.all_permissions
@@ -57,15 +57,18 @@ describe Ixtlan::UserManagement::Session do
           "login"=>"root",
           "name"=>"Root"
         },
-        "permissions"=>[{"resource"=>"audits",
+        "permissions"=>[{ "children" => [],
+                          "resource"=>"audits",
                           "actions"=>[],
                           "allow"=>false,
                           "associations"=>[]},
-                        {"resource"=>"errors",
+                        { "children" => [],
+                          "resource"=>"errors",
                           "actions"=>[],
                           "allow"=>false,
                           "associations"=>[]},
-                        {"resource"=>"configuration",
+                        { "children" => [],
+                          "resource"=>"configuration",
                           "actions"=>[],
                           "allow"=>false,
                           "associations"=>[]}
@@ -77,10 +80,10 @@ describe Ixtlan::UserManagement::Session do
   end
 
   it 'serializes with some permissions' do
-    guard.permission( 'audits' ).allow_retrieve
-    guard.permission( 'errors' ).allow_create
-    guard.permission( 'configuration' ).allow_update
-    guard.permission( 'users' ).allow_delete
+    guard.permission_for( 'audits' ).allow_retrieve
+    guard.permission_for( 'errors' ).allow_create
+    guard.permission_for( 'configuration' ).allow_update
+    guard.permission_for( 'users' ).allow_delete
 
     subject.permissions = guard.all_permissions
 
@@ -91,23 +94,27 @@ describe Ixtlan::UserManagement::Session do
           "login"=>"root",
           "name"=>"Root"
         },
-        "permissions"=>[{"resource"=>"audits",
-                          "actions"=>[{"verb"=>nil,
+        "permissions"=>[{ "children" => [],
+                          "resource"=>"audits",
+                          "actions"=>[{ "verb" => nil,
                                         "name"=>"retrieve"}],
                           "allow"=>true,
                           "associations"=>[]},
-                        {"resource"=>"errors",
-                          "actions"=>[{"verb"=>nil,
+                        { "children" => [],
+                          "resource"=>"errors",
+                          "actions"=>[{ "verb" => nil,
                                         "name"=>"create"}],
                           "allow"=>true,
                           "associations"=>[]},
-                        {"resource"=>"configuration",
-                          "actions"=>[{"verb"=>nil,
+                        { "children" => [],
+                          "resource"=>"configuration",
+                          "actions"=>[{ "verb" => nil,
                                         "name"=>"update"}],
                           "allow"=>true,
                           "associations"=>[]},
-                        {"resource"=>"users",
-                          "actions"=>[{"verb"=>nil,
+                        { "children" => [],
+                          "resource"=>"users",
+                          "actions"=>[{ "verb" => nil,
                                         "name"=>"delete"}],
                           "allow"=>true,
                           "associations"=>[]}
@@ -119,8 +126,8 @@ describe Ixtlan::UserManagement::Session do
   end
 
   it 'serializes permissions with assoications' do
-    guard.permission( 'audits', 'domain' ).allow_mutate
-    guard.permission( 'users', 'nodomain', 'domain' ).allow_delete
+    guard.permission_for( 'audits', 'domain' ).allow_mutate
+    guard.permission_for( 'users', 'nodomain', 'domain' ).allow_delete
 
     subject.permissions = guard.all_permissions
 
@@ -131,17 +138,19 @@ describe Ixtlan::UserManagement::Session do
           "login"=>"root",
           "name"=>"Root"
         },
-        "permissions"=>[{"resource"=>"audits",
-                          "actions"=>[{"verb"=>nil, 
+        "permissions"=>[{ "children" => [],
+                          "resource"=>"audits",
+                          "actions"=>[{ "verb" => nil,
                                         "name"=>"retrieve"},
-                                      {"verb"=>nil,
+                                      { "verb" => nil,
                                         "name"=>"create"},
-                                      {"verb"=>nil,
+                                      { "verb" => nil,
                                         "name"=>"update"}],
                           "allow"=>true,
                           "associations"=>["domain"]},
-                        {"resource"=>"users",
-                          "actions"=>[{"verb"=>nil,
+                        { "children" => [],
+                          "resource"=>"users",
+                          "actions"=>[{ "verb" => nil,
                                         "name"=>"delete"}],
                           "allow"=>true,
                           "associations"=>["nodomain", "domain"]}

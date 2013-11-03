@@ -25,19 +25,21 @@ module Ixtlan
 
       root 'session'
 
-      add_context( :single,
-                   :only => [],
-                   :methods => [:idle_session_timeout ],
-                   :include => { 
-                     :user => {
-                       :only => [],
-                       :methods => [ :id, :login, :name ]
-                     },
-                     :permissions => {
-                       :include => [ :actions, :associations ]
-                     }
-                   } )
-      
+      PERM = [ :resource, 
+               :allow, 
+               :associations ]
+      ACTION = only( :name,
+                     :verb )
+
+      add_context( :single ) do
+        only( :idle_session_timeout,
+              :user => only( :id, :login, :name ),
+              :permissions => only( PERM,
+                                    :actions => ACTION,
+                                    :children => only( PERM,
+                                                       :actions => ACTION ) ) )
+                                    
+      end
     end
   end
 end
