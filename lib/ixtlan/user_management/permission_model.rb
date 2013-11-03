@@ -37,11 +37,21 @@ module Ixtlan
                   :allow_delete ]
       
       attribute :parent, Permission
+      attribute :children, Array[Permission]
       attribute :resource, String
       attribute :actions, Array[Action], :default => []
       attribute :allow, Boolean, :default => true
       attribute :associations, Array[String]
-      
+     
+      def parent=( pt )
+        super
+        if pt
+          pt.children << self
+        elsif parent
+          parent.children.delete self
+        end
+      end
+
       def allow?( method )#TODO, association = nil )
         action = self.actions.detect { |a| a.name == method }
         if self.allow 
@@ -54,23 +64,34 @@ module Ixtlan
       def allow_all
         self.allow = false
         self.actions.clear
+        self
       end
 
       def deny_all
         self.allow = true
         self.actions.clear
+        self
       end
 
       def allow_mutate( *associations )
         allow_retrieve( *associations )
         allow_create( *associations )
         allow_update( *associations )
+        self
       end
       
       def method_missing( method, *args )
         if METHODS.include?( method )
           actions << Action.new( :name => method.to_s.sub( /allow_/, '' ),
                                  :associations => args )
+          self
+        elsif METHODS.include?( method.to_s.sub( /_verb$/, '' ).to_sym )
+          verb = args.first
+          args = args[ 1..-1 ]
+          actions << Action.new( :name => method.to_s.gsub( /allow_|_verb/, '' ),
+                                 :verb => verb,
+                                 :associations => args )
+          self
         else
           super
         end
