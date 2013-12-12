@@ -9,7 +9,7 @@ rvm:
 before_install:
   - sudo apt-get update && sudo apt-get install libicu-dev
 matrix:
-  - allow_failures:
+  allow_failures:
     - rvm: jruby-head
     - rvm: ruby-head
 
