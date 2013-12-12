@@ -79,7 +79,7 @@ describe Ixtlan::UserManagement::Guard do
         %w( audits errors configuration ).each do |resource|
           [ 'domain', nil ].each do |asso|
             expected = Ixtlan::UserManagement::Guard::METHODS[ m ] 
-            subject.allow?( resource, m, asso ).must_equal (expected == meth)
+            subject.allow?( resource, m, asso ).must_equal(expected == meth)
           end
         end
       end
@@ -102,7 +102,7 @@ describe Ixtlan::UserManagement::Guard do
       [ :get, :post, :put, :delete ].each do |m|
         %w( audits errors configuration ).each do |resource|
           expected = Ixtlan::UserManagement::Guard::METHODS[ m ] 
-          subject.allow?( resource, m, 'domain' ).must_equal (expected == meth)
+          subject.allow?( resource, m, 'domain' ).must_equal(expected == meth)
         end
       end
     end
@@ -122,7 +122,7 @@ describe Ixtlan::UserManagement::Guard do
       [ :get, :post, :put, :delete ].each do |m|
         %w( audits errors configuration ).each do |resource|
           expected = Ixtlan::UserManagement::Guard::METHODS[ m ] 
-          subject.allow?( resource, m, 'domain' ).must_equal (expected == meth)
+          subject.allow?( resource, m, 'domain' ).must_equal(expected == meth)
         end
       end
     end
