@@ -25,8 +25,8 @@ describe Ixtlan::UserManagement::SessionManager do
     expected = {
       "login"=>"root",
       "name"=>"Root",
-      "groups"=>[{"name"=>"root"},
-                 {"name"=>"admin"}]
+      "groups"=>[{"name"=>"root", "associations"=>nil},
+                 {"name"=>"admin", "associations"=>nil}]
     }
 
     data = subject.to_session( user )

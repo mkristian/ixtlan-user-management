@@ -25,7 +25,7 @@ module Ixtlan
       include Virtus
 
       attribute :name, String
-      attribute :associations, Array[Object]
+      attribute :associations, Array[Object], :default => nil
     end
   end
 end

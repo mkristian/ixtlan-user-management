@@ -43,6 +43,54 @@ describe Ixtlan::UserManagement::Session do
     result.must_equal expected
   end
 
+  it 'serializes with associations' do
+    guard.permission_for( 'audits' ).allow_all( 12,123 )
+
+    subject.permissions = guard.all_permissions
+
+    expected = {
+      "session"=>{"idle_session_timeout"=>30,
+        "user"=>{
+          "id"=>1,
+          "login"=>"root",
+          "name"=>"Root"
+        },
+        "permissions"=>[{ "children" => [],
+                          "resource"=>"audits",
+                          "actions"=>[],
+                          "allow"=>false,
+                          "associations"=>["12", "123"]}]
+      }
+    }    
+    result = factory.new_serializer( subject ).to_hash
+    result.must_equal expected
+  end
+
+  it 'serializes with empty associations' do
+    guard.permission_for( 'audits' ).allow_retrieve( [] )
+
+    subject.permissions = guard.all_permissions
+
+    expected = {
+      "session"=>{"idle_session_timeout"=>30,
+        "user"=>{
+          "id"=>1,
+          "login"=>"root",
+          "name"=>"Root"
+        },
+        "permissions"=>[{ "children" => [],
+                          "resource"=>"audits",
+                          "actions"=>[{ "verb"=>nil, 
+                                        "name"=>"retrieve",
+                                        "associations"=>[] }],
+                          "allow"=>true,
+                          "associations"=>nil}]
+      }
+    }    
+    result = factory.new_serializer( subject ).to_hash
+    result.must_equal expected
+  end
+
   it 'serializes with root permissions' do
     %w( audits errors configuration ).each do |resource|
       guard.permission_for( resource ).allow_all
@@ -61,17 +109,17 @@ describe Ixtlan::UserManagement::Session do
                           "resource"=>"audits",
                           "actions"=>[],
                           "allow"=>false,
-                          "associations"=>[]},
+                          "associations"=>nil},
                         { "children" => [],
                           "resource"=>"errors",
                           "actions"=>[],
                           "allow"=>false,
-                          "associations"=>[]},
+                          "associations"=>nil},
                         { "children" => [],
                           "resource"=>"configuration",
                           "actions"=>[],
                           "allow"=>false,
-                          "associations"=>[]}
+                          "associations"=>nil}
                        ]
       }
     }
@@ -97,27 +145,31 @@ describe Ixtlan::UserManagement::Session do
         "permissions"=>[{ "children" => [],
                           "resource"=>"audits",
                           "actions"=>[{ "verb" => nil,
-                                        "name"=>"retrieve"}],
+                                        "name"=>"retrieve",
+                                        "associations"=>nil}],
                           "allow"=>true,
-                          "associations"=>[]},
+                          "associations"=>nil},
                         { "children" => [],
                           "resource"=>"errors",
                           "actions"=>[{ "verb" => nil,
-                                        "name"=>"create"}],
+                                        "name"=>"create",
+                                        "associations"=>nil}],
                           "allow"=>true,
-                          "associations"=>[]},
+                          "associations"=>nil},
                         { "children" => [],
                           "resource"=>"configuration",
                           "actions"=>[{ "verb" => nil,
-                                        "name"=>"update"}],
+                                        "name"=>"update",
+                                        "associations"=>nil}],
                           "allow"=>true,
-                          "associations"=>[]},
+                          "associations"=>nil},
                         { "children" => [],
                           "resource"=>"users",
                           "actions"=>[{ "verb" => nil,
-                                        "name"=>"delete"}],
+                                        "name"=>"delete",
+                                        "associations"=>nil}],
                           "allow"=>true,
-                          "associations"=>[]}
+                          "associations"=>nil}
                        ]
       }
     }
@@ -141,17 +193,21 @@ describe Ixtlan::UserManagement::Session do
         "permissions"=>[{ "children" => [],
                           "resource"=>"audits",
                           "actions"=>[{ "verb" => nil,
-                                        "name"=>"retrieve"},
+                                        "name"=>"retrieve",
+                                        "associations"=>nil},
                                       { "verb" => nil,
-                                        "name"=>"create"},
+                                        "name"=>"create",
+                                        "associations"=>nil},
                                       { "verb" => nil,
-                                        "name"=>"update"}],
+                                        "name"=>"update",
+                                        "associations"=>nil}],
                           "allow"=>true,
                           "associations"=>["domain"]},
                         { "children" => [],
                           "resource"=>"users",
                           "actions"=>[{ "verb" => nil,
-                                        "name"=>"delete"}],
+                                        "name"=>"delete",
+                                        "associations"=>nil}],
                           "allow"=>true,
                           "associations"=>["nodomain", "domain"]}
                        ]

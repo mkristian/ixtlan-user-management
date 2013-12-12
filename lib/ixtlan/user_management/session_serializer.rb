@@ -29,7 +29,8 @@ module Ixtlan
                :allow, 
                :associations ]
       ACTION = only( :name,
-                     :verb )
+                     :verb,
+                     :associations )
 
       add_context( :single ) do
         only( :idle_session_timeout,

@@ -90,8 +90,7 @@ describe Ixtlan::UserManagement::Guard do
         p.send method
         p.associations = [ 'domain', 'nodomain' ]
       end
-    
-      meth = method.to_s.sub( /allow_/, '' )
+
       [ :get, :post, :put, :delete ].each do |m|
         %w( audits errors configuration ).each do |resource|
           [ 'something', nil ].each do |asso|
@@ -99,6 +98,27 @@ describe Ixtlan::UserManagement::Guard do
           end
         end
       end
+      meth = method.to_s.sub( /allow_/, '' )
+      [ :get, :post, :put, :delete ].each do |m|
+        %w( audits errors configuration ).each do |resource|
+          expected = Ixtlan::UserManagement::Guard::METHODS[ m ] 
+          subject.allow?( resource, m, 'domain' ).must_equal (expected == meth)
+        end
+      end
+    end
+    it "#{method.to_s.sub( /_/, 's ')} with action with associations" do
+      subject.all_permissions.each do |p| 
+        p.send method, 'domain', 'nodomain'
+      end
+
+      [ :get, :post, :put, :delete ].each do |m|
+        %w( audits errors configuration ).each do |resource|
+          [ 'something', nil ].each do |asso|
+            subject.allow?( resource, m, asso ).must_equal false
+          end
+        end
+      end
+      meth = method.to_s.sub( /allow_/, '' )
       [ :get, :post, :put, :delete ].each do |m|
         %w( audits errors configuration ).each do |resource|
           expected = Ixtlan::UserManagement::Guard::METHODS[ m ] 

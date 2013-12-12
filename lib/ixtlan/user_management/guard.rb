@@ -29,18 +29,23 @@ module Ixtlan
         :delete => 'delete'
       }
 
-      def allow?( resource ,method, association = nil )
+      def allow?( resource, method, association = nil )
         perms = permissions[ resource ] || []
         perms.one? do |perm|
-          ( perm.associations.empty? || 
+          ( perm.associations.nil? || 
             perm.associations.include?( association.to_s ) ) && 
-          perm.allow?( METHODS[ method ] ) #TODO, associations )
+          perm.allow?( METHODS[ method ], association )
         end
       end
 
       def associations( resource, method = nil )
         perms = permissions[ resource ] || []
-        perms.collect { |perm| perm.associations }.flatten
+        asso = perms.select { |perm| perm.associations }
+        if asso.empty?
+          nil
+        else
+          asso.collect{ |perm| perm.associations }.flatten
+        end
         # TODO method 
       end
       

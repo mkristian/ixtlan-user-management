@@ -26,7 +26,7 @@ module Ixtlan
       
       attribute :verb, String
       attribute :name, String
-#      attribute :associations, Array[String]
+      attribute :associations, Array[String], :default => nil
     end
     class Permission   
       include Virtus
@@ -41,7 +41,7 @@ module Ixtlan
       attribute :resource, String
       attribute :actions, Array[Action], :default => []
       attribute :allow, Boolean, :default => true
-      attribute :associations, Array[String]
+      attribute :associations, Array[String], :default => nil
      
       def parent=( pt )
         super
@@ -52,21 +52,34 @@ module Ixtlan
         end
       end
 
-      def allow?( method )#TODO, association = nil )
+      def allow?( method, association = nil )
         action = self.actions.detect { |a| a.name == method }
         if self.allow 
-          ! action.nil? #TODO && ( associations.nil || action.associations.include?( association ) )
+          action != nil && ( action.associations.nil? || action.associations.include?( association ) )
         else
           action.nil? #TODO associations
         end
       end
 
-      def allow_all
+      def allow_all( *associations )
         self.allow = false
         self.actions.clear
+        set_asso( self, *associations )
         self
       end
 
+      def set_asso( obj, *associations )
+        case associations.first
+        when NilClass
+          # leave default
+        when Array
+          # assume empty
+          obj.associations = associations.flatten
+        else
+          obj.associations = associations
+        end
+      end
+      
       def deny_all
         self.allow = true
         self.actions.clear
@@ -82,15 +95,17 @@ module Ixtlan
       
       def method_missing( method, *args )
         if METHODS.include?( method )
-          actions << Action.new( :name => method.to_s.sub( /allow_/, '' ),
-                                 :associations => args )
+          a = Action.new( :name => method.to_s.sub( /allow_/, '' ) )
+          set_asso( a, *args )
+          self.actions << a
           self
         elsif METHODS.include?( method.to_s.sub( /_verb$/, '' ).to_sym )
           verb = args.first
           args = args[ 1..-1 ]
-          actions << Action.new( :name => method.to_s.gsub( /allow_|_verb/, '' ),
-                                 :verb => verb,
-                                 :associations => args )
+          a = Action.new( :name => method.to_s.gsub( /allow_|_verb/, '' ),
+                          :verb => verb )
+          set_asso( a, *args )
+          self.actions << a
           self
         else
           super
